@@ -1,5 +1,5 @@
 <img src="https://img.shields.io/badge/Language-Python-yellow.svg" style="zoom:100%;" /> <!--- <img src="https://visitor-badge.glitch.me/badge?page_id=carlga.insilico-proteome-analysis&right_color=red&left_text=Total%20Visits" alt="visitor badge"/> -->
-<img src="https://github.com/carlga/insilico-proteome-analysis/blob/main/pics/ms_hist.png" width=100 align="right">
+<img src="https://github.com/carlga/insilico-proteome-analysis/blob/main/pics/ms_hist.png" width=125 align="right">
 
 # *In silico* proteome analysis
 
