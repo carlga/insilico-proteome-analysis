@@ -27,9 +27,9 @@ def main():
     parser.add_argument("-fov", "--filter_overlaps", choices=['length', 'cai'],
                         help="Allows filtering overlapping ORFs based on the \
                         selected criteria ('length' or 'cai').")
-    parser.add_argument("-t", "--type", default='peptide', choices=['peptide',
+    parser.add_argument("-t", "--type", default='protein', choices=['protein',
                         'cdna'], help="Allows a custom ORF output type. Default\
-                         is in peptide sequences.")
+                         is in protein sequences.")
     parser.add_argument("-fmt", "--format", type=int, default=70, help="Allows \
                         a customized line length for the ORF output. Default is \
                         70 characters per line.")
@@ -86,7 +86,7 @@ def main():
         all_orfs.extend(output)
     
     #
-    # Output ORF predictions
+    # output ORF predictions
     #   
     if args.output:
         with open (args.output, 'w') as F: 
@@ -103,7 +103,7 @@ def retrieve_data(input_files, batch_flag):
 
     if batch_flag:
         path = ' '.join(input_files)
-        for file in glob.glob(os.path.join(path, '*.fasta')):
+        for file in glob.glob(os.path.join(path, '*')):
             seqs_to_add = read_file(file)
             for name in seqs_to_add.keys():
                 if name in input_data.keys():
@@ -381,22 +381,21 @@ def format_output(name, seq, orfs_found, output_type, char_per_line):
     for orf in sorted_orfs.values():
         orf_num += 1
         if orf['frame'].startswith('-'):
-            start, stop, length = (str(orf['stop']), str(orf['start']), str(orf['length']))
+            start, stop, length = (orf['stop'], orf['start'], orf['length'])
             cdna = reverse_complement(seq[orf['start']:orf['stop']+1])
-            peptide = translate(cdna)[0:-1]
+            protein = translate(cdna)[0:-1]
         else:
-            start, stop, length = (str(orf['start']), str(orf['stop']), str(orf['length']))
+            start, stop, length = (orf['start'], orf['stop'], orf['length'])
             cdna = seq[orf['start']:orf['stop']+1]
-            peptide = translate(cdna)[0:-1]
+            protein = translate(cdna)[0:-1]
 
         # append to output
-        output_lines.append('>{}_F{}_{:05d}\t{}:{}\t{}'.format(name, orf['frame'], orf_num, start, stop, length))
         if output_type == 'cdna':
-            lines_to_add = [cdna[i:i+char_per_line] for i in range(0, len(cdna), char_per_line)]
-            output_lines.extend(lines_to_add)
+            output_lines.append('>{} frame={} {}={} loc={}:{} length={}'.format(name, orf['frame'], output_type, orf_num, start, stop, length))
+            output_lines.extend([cdna[i:i+char_per_line] for i in range(0, len(cdna), char_per_line)])
         else:
-            lines_to_add = [peptide[i:i+char_per_line] for i in range(0, len(peptide), char_per_line)]
-            output_lines.extend(lines_to_add)
+            output_lines.append('>{} frame={} {}={} loc={}:{} length={}'.format(name, orf['frame'], output_type, orf_num, start, stop, round(length/3-1)))
+            output_lines.extend([protein[i:i+char_per_line] for i in range(0, len(protein), char_per_line)])
 
     return(output_lines)
 
