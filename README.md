@@ -131,3 +131,129 @@ optional arguments:
                         Allows a customized line length for the ORF output. Default is 70 characters per line.
 ```
 
+
+## 2. *In silico* protein digestion
+
+`02_ProteinDigester.py` allows to digest one or more protein sequences into smaller peptides.
+Input is in fasta format and batch mode is possible with `-b`. Peptide sequence output is to
+`STDOUT` unless a file path is provided via the `-o` argument.
+
+```
+$ python3 02_ProteinDigester.py data/proteome.fa | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=1 enzyme=trypsin missed=0 type=N
+MPPYTVVYFPVR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=2 enzyme=trypsin missed=0 type=I
+GR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=3 enzyme=trypsin missed=0 type=I
+CAALR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=4 enzyme=trypsin missed=0 type=I
+MLLADQGQSWK
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=5 enzyme=trypsin missed=0 type=I
+EEVVTVETWQEGSLK
+$
+$ python3 02_ProteinDigester.py data/proteome.fa -o data/peptides.fa
+```
+
+*Trypsin* is used by default for digestion but user-defined choice of other digesting enzymes is possible
+with `-e`. For instance, `-e r` or `-e e` can be used for *Arg-C* or *Glu-C* digestion, respectively.
+
+```
+$ python3 02_ProteinDigester.py data/proteome.fa -e r | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=1 enzyme=arg-c missed=0 type=N
+MPPYTVVYFPVR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=2 enzyme=arg-c missed=0 type=I
+GR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=3 enzyme=arg-c missed=0 type=I
+CAALR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=4 enzyme=arg-c missed=0 type=I
+MLLADQGQSWKEEVVTVETWQEGSLKASCLYGQLPKFQDGDLTLYQSNTILR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=5 enzyme=arg-c missed=0 type=I
+HLGR
+$
+$ python3 02_ProteinDigester.py data/proteome.fa -e e | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=1 enzyme=glu-c missed=0 type=N
+MPPYTVVYFPVRGRCAALRMLLADQGQSWKE
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=2 enzyme=glu-c missed=0 type=I
+E
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=3 enzyme=glu-c missed=0 type=I
+VVTVE
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=4 enzyme=glu-c missed=0 type=I
+TWQE
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=5 enzyme=glu-c missed=0 type=I
+GSLKASCLYGQLPKFQDGDLTLYQSNTILRHLGRTLGLYGKDQQE
+```
+
+Different numbers of missed cleavages, i.e. instances where the enzyme fails to digest a putative cutsite, 
+can be considered with `-m`. Passing `-m 2` as an argument will return peptides with up to two missed cleavages.
+
+```
+$ python3 02_ProteinDigester.py data/proteome.fa -m 2 | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=1 enzyme=trypsin missed=0 type=N
+MPPYTVVYFPVR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=2 enzyme=trypsin missed=1 type=N
+MPPYTVVYFPVRGR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=3 enzyme=trypsin missed=2 type=N
+MPPYTVVYFPVRGRCAALR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=4 enzyme=trypsin missed=0 type=I
+GR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=5 enzyme=trypsin missed=1 type=I
+GRCAALR
+```
+
+Peptides can also be filtered by sequence origin with `-t`. `-t N` will return all *N-terminal* peptides 
+and `-t C` will return all *C-terminal* ones.
+
+```
+$ python3 02_ProteinDigester.py data/proteome.fa -m 2 -t N | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=1 enzyme=trypsin missed=0 type=N
+MPPYTVVYFPVR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=2 enzyme=trypsin missed=1 type=N
+MPPYTVVYFPVRGR
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=3 enzyme=trypsin missed=2 type=N
+MPPYTVVYFPVRGRCAALR
+>ENA|HZ245980|HZ245980.1 frame=-2 protein=2 loc=313:8 length=101 peptide=1 enzyme=trypsin missed=0 type=N
+MYLHLR
+>ENA|HZ245980|HZ245980.1 frame=-2 protein=2 loc=313:8 length=101 peptide=2 enzyme=trypsin missed=1 type=N
+MYLHLRSSTPSFTMSTR
+$
+$ python3 02_ProteinDigester.py data/proteome.fa -m 2 -t C | head -n 10
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=51 enzyme=trypsin missed=2 type=C
+LKAFLASPEYVNLPINGNGKQ
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=53 enzyme=trypsin missed=1 type=C
+AFLASPEYVNLPINGNGKQ
+>ENA|HZ245980|HZ245980.1 frame=+1 protein=1 loc=0:632 length=210 peptide=54 enzyme=trypsin missed=0 type=C
+Q
+>ENA|HZ245980|HZ245980.1 frame=-2 protein=2 loc=313:8 length=101 peptide=30 enzyme=trypsin missed=2 type=C
+LPSCQVSTVTTSSFQLWPWSASSILRAAHLPLTGKYTTV
+>ENA|HZ245980|HZ245980.1 frame=-2 protein=2 loc=313:8 length=101 peptide=32 enzyme=trypsin missed=1 type=C
+AAHLPLTGKYTTV
+```
+
+More usage information with `-h`:
+
+```
+$ python3 02_ProteinDigester.py -h
+usage: 02_ProteinDigester.py [-h] [-o OUTPUT] [-e {t,k,v,r,x,e}] [-m {0,1,2,3,4,5}] [-t {N,I,C,all}] [-b]
+                             input [input ...]
+
+Digest protein sequences to peptides.
+
+positional arguments:
+  input                 Enter fasta file with protein sequences to digest.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Allows output to specified file.
+  -e {t,k,v,r,x,e}, --enzyme {t,k,v,r,x,e}
+                        Allows selecting different enzymes for digestion: trypsin (t), lys-c (k), Staph-v8 (v),
+                        arg-c (r), trypsin-acetyl (x) or glu-c (e).
+  -m {0,1,2,3,4,5}, --missed {0,1,2,3,4,5}
+                        Allows setting different numbers of missed cleavages (0-5 are allowed).
+  -t {N,I,C,all}, --type {N,I,C,all}
+                        Allows filtering for peptide origin: n-terminal (N), internal (I), c-terminal (C) or
+                        all.
+  -b, --batch           Enables batch mode for processing all '.fasta' files in a directory. Path to directory
+                        must be specified as input.
+```
+
