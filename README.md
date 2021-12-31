@@ -257,3 +257,16 @@ optional arguments:
                         must be specified as input.
 ```
 
+## 3. Peptide mass-to-charge (m/z) ratios
+
+```
+$ python3 03_MassAnalyzer.py data/peptides.fa | head -n 6
+id      protein peptide mass-to-charge  z       missed  enzyme  type    sequence
+ENA|HZ245980|HZ245980.1 1       1       1468.759        1       0       trypsin N       MPPYTVVYFPVR
+ENA|HZ245980|HZ245980.1 1       2       232.133 1       0       trypsin I       GR
+ENA|HZ245980|HZ245980.1 1       3       533.279 1       0       trypsin I       CAALR
+ENA|HZ245980|HZ245980.1 1       4       1276.628        1       0       trypsin I       MLLADQGQSWK
+ENA|HZ245980|HZ245980.1 1       5       1733.852        1       0       trypsin I       EEVVTVETWQEGSLK
+$
+$ python3 03_MassAnalyzer.py data/peptides.fa -o data/masses.tsv
+```
