@@ -11,7 +11,9 @@
 ![infographic](./pics/insilico-proteome-analysis.png)
 
 
-## 1. *Ab initio* protein-coding gene prediction
+## Usage
+
+### 1. *Ab initio* protein-coding gene prediction
 
 `01_ORFfinder.py` is an Open Reading Frame (ORF) finder for prokariotic genomic sequences.
 Each input file must be fasta formatted and at least one filename is required for the program to run.
@@ -132,7 +134,7 @@ optional arguments:
 ```
 
 
-## 2. *In silico* protein digestion
+### 2. *In silico* protein digestion
 
 `02_ProteinDigester.py` allows to digest one or more protein sequences into smaller peptides.
 Input is in fasta format and batch mode is possible with `-b`. Peptide sequence output is to
@@ -257,7 +259,14 @@ optional arguments:
                         must be specified as input.
 ```
 
-## 3. Peptide mass-to-charge (m/z) ratios
+
+### 3. Calculate peptide masses
+
+`03_MassAnalyzer.py` allows to transform peptide sequence information into *mass-to-charge (m/z)* values.
+Input is in fasta format and batch mode is possible with `-b`. A tab-delimited table with peptide 
+information is produced as `STDOUT` unless a file path is provided via the `-o` argument.
+
+Note: mass calculation assumes that all peptides are ions of +1 charge.
 
 ```
 $ python3 03_MassAnalyzer.py data/peptides.fa | head -n 6
@@ -270,3 +279,72 @@ ENA|HZ245980|HZ245980.1 1       5       1733.852        1       0       trypsin 
 $
 $ python3 03_MassAnalyzer.py data/peptides.fa -o data/masses.tsv
 ```
+
+*Monoisotopic* amino acid masses are used by default, although additional options are available
+with `-m`. For instance, `-m 1` will use *average* amino acid masses instead, and `-m 4` will 
+account for oxidation of methionines.
+
+```
+$ python3 03_MassAnalyzer.py data/peptides.fa -m 1 | head -n 6
+id      protein peptide mass-to-charge  z       missed  enzyme  type    sequence
+ENA|HZ245980|HZ245980.1 1       1       1469.785        1       0       trypsin N       MPPYTVVYFPVR
+ENA|HZ245980|HZ245980.1 1       2       232.255 1       0       trypsin I       GR
+ENA|HZ245980|HZ245980.1 1       3       533.665 1       0       trypsin I       CAALR
+ENA|HZ245980|HZ245980.1 1       4       1277.465        1       0       trypsin I       MLLADQGQSWK
+ENA|HZ245980|HZ245980.1 1       5       1734.885        1       0       trypsin I       EEVVTVETWQEGSLK
+$
+$ python3 03_MassAnalyzer.py data/peptides.fa -m 4 | head -n 6
+id      protein peptide mass-to-charge  z       missed  enzyme  type    sequence
+ENA|HZ245980|HZ245980.1 1       1       1484.753        1       0       trypsin N       MPPYTVVYFPVR
+ENA|HZ245980|HZ245980.1 1       2       232.133 1       0       trypsin I       GR
+ENA|HZ245980|HZ245980.1 1       3       533.279 1       0       trypsin I       CAALR
+ENA|HZ245980|HZ245980.1 1       4       1292.623        1       0       trypsin I       MLLADQGQSWK
+ENA|HZ245980|HZ245980.1 1       5       1733.852        1       0       trypsin I       EEVVTVETWQEGSLK
+```
+
+Filtering by peptide location in the original protein is also possible with `-t`.
+`-t N` for *N-terminal* peptides and `-t C` for *C-terminal* ones.
+
+```
+$ python3 03_MassAnalyzer.py data/peptides.fa -t N | head -n 6
+id      protein peptide mass-to-charge  z       missed  enzyme  type    sequence
+ENA|HZ245980|HZ245980.1 1       1       1468.759        1       0       trypsin N       MPPYTVVYFPVR
+ENA|HZ245980|HZ245980.1 2       1       832.443 1       0       trypsin N       MYLHLR
+$
+$ python3 03_MassAnalyzer.py data/peptides.fa -t C | head -n 6
+id      protein peptide mass-to-charge  z       missed  enzyme  type    sequence
+ENA|HZ245980|HZ245980.1 1       19      147.069 1       0       trypsin C       Q
+ENA|HZ245980|HZ245980.1 2       12      483.238 1       0       trypsin C       YTTV
+```
+
+Usage information:
+
+```
+$ python3 03_MassAnalyzer.py -h
+usage: 03_MassAnalyzer.py [-h] [-o OUTPUT] [-m {0,1,2,3,4,5,6,7}] [-t {N,I,C,all}] [-b]
+                          input [input ...]
+
+Calculate mass for peptide sequences.
+
+positional arguments:
+  input                 Enter fasta file with peptide sequences.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Allows output to specified file.
+  -m {0,1,2,3,4,5,6,7}, --masses {0,1,2,3,4,5,6,7}
+                        Allows to consider different modifications for calculating peptide mass: (0)
+                        Monoisotopic, (1) Average, (2) Monoisotopic + Phosphorylation (Ser, Tyr and
+                        Thr), (3) Average + Phosphorylation (Ser, Tyr and Thr), (4) Monoisotopic +
+                        Oxidation (Met), (5) Average + Oxidation (Met), (6) Monoisotopic +
+                        Phosphorylation (Ser, Tyr and Thr) + Oxidation (Met), (7) Average +
+                        Phosphorylation (Ser, Tyr and Thr) + Oxidation (Met)
+  -t {N,I,C,all}, --type {N,I,C,all}
+                        Allows filtering masses for peptide origin: n-terminal (N), internal (I),
+                        c-terminal (C) or all.
+  -b, --batch           Enables batch mode for processing all '.fasta' files in a directory. Path to
+                        directory must be specified as input.
+```
+
+
