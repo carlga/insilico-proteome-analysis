@@ -348,3 +348,87 @@ optional arguments:
 ```
 
 
+### 4. Calculate peptide statistics
+
+`04_StatisticsCalculator.py` allows to bin peptides according to their *mass-to-charge* values
+and simulate the detection of a mass spectrometer. User-defined binning is possible using a sliding
+window approach, which allows modeling the mass accuracy of the instrument. Input is in the form of
+a tab-delimited table with peptide information. `STDOUT` is used for output of bins unless a file 
+path is provided via the `-o` argument.
+
+```
+$ python3 04_StatisticsCalculator.py data/masses.tsv | head -n 16
+range (Da)      average count   peptides
+1000:1010       0       0       NA
+1005:1015       0       0       NA
+1010:1020       0       0       NA
+1015:1025       0       0       NA
+1020:1030       0       0       NA
+1025:1035       0       0       NA
+1030:1040       0       0       NA
+1035:1045       0       0       NA
+1040:1050       0       0       NA
+1045:1055       0       0       NA
+1050:1060       0       0       NA
+1055:1065       0       0       NA
+1060:1070       0       0       NA
+1065:1075       0       0       NA
+1070:1080       1079.548        1       1.6
+$
+$ python3 04_StatisticsCalculator.py data/masses.tsv -o data/stats.tsv
+```
+
+By default, the tool considers a detection range of 1000-1500Da, a window size of 10Da, and 
+a step size of 5Da. This can be changed with the `-r`, `-w` and `-s` arguments, respectively
+
+```
+$ python3 04_StatisticsCalculator.py data/masses.tsv -r 0 2000 -w 100 -s 100
+range (Da)      average count   peptides
+0:100   0       0       NA
+100:200 0       0       NA
+200:300 0       0       NA
+300:400 0       0       NA
+400:500 0       0       NA
+500:600 0       0       NA
+600:700 0       0       NA
+700:800 0       0       NA
+800:900 0       0       NA
+900:1000        0       0       NA
+1000:1100       1079.548        1       1.6
+1100:1200       0       0       NA
+1200:1300       1239.086        2       2.2;1.4
+1300:1400       0       0       NA
+1400:1500       1441.712        3       2.3;2.8;1.1
+1500:1600       1534.772        1       1.12
+1600:1700       0       0       NA
+1700:1800       1733.852        1       1.5
+1800:1900       1883.943        1       1.7
+1900:2000       1903.984        1       1.18
+```
+
+Usage information:
+
+```
+$ python3 04_StatisticsCalculator.py -h
+usage: 04_StatisticsCalculator.py [-h] [-o OUTPUT] [-r RANGE RANGE] [-s STEP]
+                                  [-w WINDOW]
+                                  input
+
+Calculate mass spectrometry statistics for ionized peptides.
+
+positional arguments:
+  input                 Enter tab-delimited file with peptide information.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -o OUTPUT, --output OUTPUT
+                        Allows output to specified file.
+  -r RANGE RANGE, --range RANGE RANGE
+                        Allows specifying a custom range for peptide detection.
+                        Default is 1000-1500 Da.
+  -s STEP, --step STEP  Allows to select step size for sliding window analysis.
+                        Default is 5 Da.
+  -w WINDOW, --window WINDOW
+                        Allows to select window size for sliding window analysis.
+                        Default is 10 Da.
+```
