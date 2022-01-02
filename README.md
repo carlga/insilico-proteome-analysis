@@ -432,3 +432,16 @@ optional arguments:
                         Allows to select window size for sliding window analysis.
                         Default is 10 Da.
 ```
+
+
+## Real-world example
+
+So far we have worked with a small sample sequence with only a few detectable ORFs but
+real genomes can have thousands of proteins. These tools can help evaluate several
+digestion conditions for proteome *shotgun* experiments. 
+
+This is how the peptide detection histogram would look like for a bacterial genome:
+
+| ![benchmark](./pics/detected-peptides.png) |
+|:--:|
+| ***Peptide counts in 1000-1500 m/z range following enzymatic digestion.*** |
