@@ -8,7 +8,9 @@
 > The code was developed as a practice exercise and is provided as is for those learning and/or seeking for inspiration.
 > Kindly drop a :star: if this is helpful!
 
-![infographic](./pics/insilico-proteome-analysis.png)
+| ![infographic](./pics/insilico-proteome-analysis.png) |
+|:--:|
+| ***In silico proteome analysis workflow.*** |
 
 
 ## Usage
